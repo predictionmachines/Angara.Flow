@@ -400,8 +400,8 @@ Target "All" DoNothing
 "GenerateHelpDebug"
   ==> "KeepRunning"
 
-"ReleaseDocs"
-  ==> "Release"
+//"ReleaseDocs"
+//  ==> "Release"
 
 "BuildPackage"
   ==> "PublishNuget"
