@@ -1,3 +1,4 @@
-### 0.1.0 (Unreleased)
+## 0.1.0 - October, 2017
 
-Initial source drop
+Includes flow graph, state machine, execution runtime and computation expression to define dependency graph.
+
