@@ -1,4 +1,4 @@
-## 0.1.1 - October, 2017
+## 0.1.2 - October, 2017
 
 New public function `Angara.Execution.Control.runToFinalIn` allows to provide custom method scheduler.
 

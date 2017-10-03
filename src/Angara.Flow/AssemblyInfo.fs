@@ -5,13 +5,13 @@ open System.Reflection
 [<assembly: AssemblyTitleAttribute("Angara.Flow")>]
 [<assembly: AssemblyProductAttribute("Angara.Flow")>]
 [<assembly: AssemblyDescriptionAttribute("A .NET framework for composing, evaluating, inspecting and persisting computational experiments which are represented as a dataflow.")>]
-[<assembly: AssemblyVersionAttribute("0.1.1")>]
-[<assembly: AssemblyFileVersionAttribute("0.1.1")>]
+[<assembly: AssemblyVersionAttribute("0.1.2")>]
+[<assembly: AssemblyFileVersionAttribute("0.1.2")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "Angara.Flow"
     let [<Literal>] AssemblyProduct = "Angara.Flow"
     let [<Literal>] AssemblyDescription = "A .NET framework for composing, evaluating, inspecting and persisting computational experiments which are represented as a dataflow."
-    let [<Literal>] AssemblyVersion = "0.1.1"
-    let [<Literal>] AssemblyFileVersion = "0.1.1"
+    let [<Literal>] AssemblyVersion = "0.1.2"
+    let [<Literal>] AssemblyFileVersion = "0.1.2"
