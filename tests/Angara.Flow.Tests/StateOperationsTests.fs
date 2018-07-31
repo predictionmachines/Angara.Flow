@@ -31,7 +31,7 @@ type Data =
         
 
 [<Test; Category("CI")>]
-[<Timeout(1000)>]
+[<MaxTime(1000)>]
 let ``State normalization adds a proper status when it is missing for a vertex``() =
     let v1 = Vertex(1, [], [typeof<int>])
     let v2 = Vertex(2, [typeof<int>], [typeof<int>])

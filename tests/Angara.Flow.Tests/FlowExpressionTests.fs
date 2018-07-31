@@ -43,7 +43,7 @@ let range =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Flow expression returns unit``() =
     let f = flow {
         return ()
@@ -68,7 +68,7 @@ let ``Flow expression returns unit``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Increment an integer number``() =
     let f = flow {
         let! x = makeValue 3
@@ -84,7 +84,7 @@ let ``Increment an integer number``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Iterative method with multiple outputs``() =
     let fiter = (decl (fun n ->
         let rec r(k) = seq { 
@@ -102,7 +102,7 @@ let ``Iterative method with multiple outputs``() =
 
  
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Array of flows to array of artefacts``() =
     let f = flow {
         let! a = [|
@@ -120,7 +120,7 @@ let ``Array of flows to array of artefacts``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``A single constant computation expression``() =
     let g = flow {
         let pi = value 3.14
@@ -134,7 +134,7 @@ let ``A single constant computation expression``() =
 
     
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Inline constants in "return"``() =
     let g = flow {
         return! add (value 1) (value 2)
@@ -147,7 +147,7 @@ let ``Inline constants in "return"``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Inline constants in computation expressions``() =
     let g = flow {
         let! x = inc (value 3)
@@ -167,7 +167,7 @@ let ``Inline constants in computation expressions``() =
     Assert.AreEqual(9, s.Graph.Structure.Vertices.Count, "Number of methods")
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Build and run a flow using 'flow' expression``() =
     let g = flow {
         let! x = makeValue 3
@@ -179,7 +179,7 @@ let ``Build and run a flow using 'flow' expression``() =
     Assert.AreEqual(7, run g)
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Get an exception occured during execution``() =
     let fail = decl (fun _ -> raise (new System.DivideByZeroException())) "throw exception" |> arg "x" |> result1 "out"
     let g = flow {
@@ -197,7 +197,7 @@ let ``Get an exception occured during execution``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Return two artefacts from 'flow' monad``() =
     let g = flow {
         let! x = makeValue 3
@@ -210,7 +210,7 @@ let ``Return two artefacts from 'flow' monad``() =
     Assert.AreEqual(7, z, "final sum value")
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Array input when using 'flow' monad``() =
     let g = flow {
         let! x = makeValue 3
@@ -230,7 +230,7 @@ let ``Array input when using 'flow' monad``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(2000)>]
+[<MaxTime(2000)>]
 let ``Use iterative method in a 'work' monad``() =
     let g = flow {
         let! func   = makeValue (fun (x:float) -> x*x*x + x*x - x)
@@ -243,7 +243,7 @@ let ``Use iterative method in a 'work' monad``() =
     Assert.AreEqual(4.0/3.0, run g, 0.001, "Value must be about 4/3")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Vector operation in a work expression``() =
     let w = flow {
         let! s = foreach(value [| 0; 1; 2 |], inc)
@@ -254,7 +254,7 @@ let ``Vector operation in a work expression``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Nested vector operation in a work expression``() =
     let w = flow {
         let! r = makeValue [| 0; 1; 2 |]
@@ -270,7 +270,7 @@ let ``Nested vector operation in a work expression``() =
     Assert.AreEqual(10, run w, "Sum")
     
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Closure in a scatter body``() =
     let w = flow {
         let! n = makeValue 5
@@ -284,7 +284,7 @@ let ``Closure in a scatter body``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Scatter collected array``() =
     let w = flow {
         let! x = makeValue 1
@@ -297,7 +297,7 @@ let ``Scatter collected array``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Closure in a nested scatter body``() =
     let w = flow {
         let! n = makeValue 5
@@ -318,7 +318,7 @@ let ``Closure in a nested scatter body``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Double scatter of 2d-array``() =
     let w = flow {
         let! a = makeValue[| [| 0; 1 |]; [| 2; 3 |] |]
@@ -335,7 +335,7 @@ let ``Double scatter of 2d-array``() =
     Assert.AreEqual(10, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Triple scatter of 3d-array``() =
     let w = flow {
         let! a = makeValue[| [| [| 0; 1 |]; [| 2; 3 |] |]; [| [| 4; 5 |] |] |]
@@ -356,7 +356,7 @@ let ``Triple scatter of 3d-array``() =
 
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Collecting scattered value``() =
     let w = flow {
         let! s = foreach(value[| 0; 1; 2 |], fun v -> flow {
@@ -369,7 +369,7 @@ let ``Collecting scattered value``() =
     Assert.AreEqual(6, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Returning scattered value``() =
     let w = flow {
         let! s = foreach(value[| 0; 1; 2 |], fun v -> flow {
@@ -381,7 +381,7 @@ let ``Returning scattered value``() =
     Assert.AreEqual(3, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Scattering collected scattered value``() =
     let w = flow {
         let! s = foreach(value[| 0; 1; 2 |], fun v -> flow {
@@ -396,7 +396,7 @@ let ``Scattering collected scattered value``() =
     Assert.AreEqual(12, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Scatter body doesn't depend on scattered artefact``() =
     let w = flow {
         let! n = makeValue 5
@@ -409,7 +409,7 @@ let ``Scatter body doesn't depend on scattered artefact``() =
     Assert.AreEqual(18, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Scatter body doesn't depend on scattered artefact and has no inputs``() =
     let w = flow {
         let! s = foreach(value[|0;1;2|], fun _ -> flow {
@@ -421,7 +421,7 @@ let ``Scatter body doesn't depend on scattered artefact and has no inputs``() =
     Assert.AreEqual([|3;3;3|], run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Closure in a nested scatter body using 'collect'``() =
     let w = flow {
         let! n = makeValue 5
@@ -441,7 +441,7 @@ let ``Closure in a nested scatter body using 'collect'``() =
     Assert.AreEqual(57, run w, "Sum")
     
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Closure in a scatter body, delayed closed value producer``() =
     let mkv_delay = decl (fun (delay:int) -> System.Threading.Thread.Sleep(delay); 5) "mkv_delay" |> arg "value" |> result1 "out"
 
@@ -457,7 +457,7 @@ let ``Closure in a scatter body, delayed closed value producer``() =
     Assert.AreEqual(18, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Closure in a scatter body, delayed array producer``() =
     let mkv_delay = decl(fun (delay:int) -> System.Threading.Thread.Sleep(delay); [| 0; 1; 2 |]) "mkv_delay" |> arg "value" |> result1 "out"
 
@@ -473,7 +473,7 @@ let ``Closure in a scatter body, delayed array producer``() =
     Assert.AreEqual(18, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Adding two arrays using foreach2``() =
     let w = flow {
         let! a = makeValue [| 1; 2; 4 |]
@@ -489,7 +489,7 @@ let ``Adding two arrays using foreach2``() =
     Assert.AreEqual(16, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Adding three arrays using foreach3``() =
     let w = flow {
         let! aa = makeValue [| 1; 2; 4 |]
@@ -506,7 +506,7 @@ let ``Adding three arrays using foreach3``() =
     Assert.AreEqual(25, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Adding three collected arrays using foreach3``() =
     let w = flow {
         let! nums = [| for i = 0 to 5 do yield makeValue i |]
@@ -524,7 +524,7 @@ let ``Adding three collected arrays using foreach3``() =
     Assert.AreEqual(25, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Nested foreach3``() =
     let w = flow {
         let! aa = makeValue [| 1; 2 |]
@@ -546,7 +546,7 @@ let ``Nested foreach3``() =
     Assert.AreEqual(56, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Nested foreach3 with collections``() =
     let w = flow {
         let! nums = [| for i = 0 to 5 do yield makeValue i |]
@@ -569,7 +569,7 @@ let ``Nested foreach3 with collections``() =
     Assert.AreEqual(56, run w, "Sum")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Adding two arrays of different length``() =
     let w = flow {
         let! a = makeValue [| 1; 2; 4 |]
@@ -587,7 +587,7 @@ let ``Adding two arrays of different length``() =
     Assert.Fail("work succeeded")
 
 [<Test; Category("CI")>]
-[<Timeout(3000)>]
+[<MaxTime(3000)>]
 let ``Nested foreach``() =
     let w = flow {
         let! a = makeValue [| 1; 2; 4 |]

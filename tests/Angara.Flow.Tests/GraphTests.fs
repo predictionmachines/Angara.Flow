@@ -14,7 +14,7 @@ type IntEdge(source, target) =
 type IntDag = Angara.Graph.DirectedAcyclicGraph<int,IntEdge>
 
 [<Test; Category("CI")>]
-[<Timeout(1000)>]
+[<MaxTime(1000)>]
 let ``Graph vertices are folded in topological order``() = 
     // No vertices
     IntDag().TopoFold (fun s v e -> v :: s) [] |> should equal []
@@ -40,10 +40,9 @@ let ``Graph vertices are folded in topological order``() =
     Assert.IsTrue(result.[2] = 1 && result.[3] = 3 || result.[2] = 3 && result.[3] = 1)
 
 [<Test; Category("CI")>]
-[<Timeout(1000)>]
-[<ExpectedException(typeof<InvalidOperationException>)>]
+[<MaxTime(1000)>]
 let ``No loops are allowed``() = 
-    let g = IntDag().AddVertex(1).AddVertex(2).AddEdge(IntEdge(1,2))
-    g.AddEdge(IntEdge(2,1)) |> ignore
-
-
+    Assert.That((fun () ->
+        let g = IntDag().AddVertex(1).AddVertex(2).AddEdge(IntEdge(1,2))
+        g.AddEdge(IntEdge(2,1)) |> ignore),
+        Throws.InvalidOperationException)

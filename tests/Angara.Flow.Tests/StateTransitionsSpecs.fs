@@ -60,16 +60,17 @@ let ``Obsolete 'iteration' message is ignored``() =
     |> ignore
 
 [<Test>]
-[<ExpectedException(typeof<System.InvalidOperationException>)>]
 let ``Final method cannot be started``() = 
-    let g = graph {
-        return! node1 "a" []
-    }
+    Assert.That((fun () ->
+        let g = graph {
+            return! node1 "a" []
+        }
 
-                        state (g, ["a", Final [0]], 0UL)
-    |> start "a"
-    |> ignore
-
+                            state (g, ["a", Final [0]], 0UL)
+        |> start "a"
+        |> ignore),
+        Throws.InvalidOperationException)
+    
 //------------------------------------------------------------------------------------------
 //
 //   2-methods transitions
