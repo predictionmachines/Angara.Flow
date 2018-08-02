@@ -1,6 +1,7 @@
 ﻿module ``Engine tests``
 
-open NUnit.Framework
+open Xunit
+open FsUnit.Xunit
 
 open Angara.Graph
 open Angara.States
@@ -46,7 +47,7 @@ type MethodMakeValueIter<'a>(values: 'a seq) =
 // Tests
 
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine executes a flow containing a single method`` () =
     let methodOne : ExecutableMethod = upcast MethodMakeValue System.Math.PI
     let graph = 
@@ -66,10 +67,10 @@ let ``Engine executes a flow containing a single method`` () =
     
     let s = Control.runToFinal state
     let result : float = s |> Control.outputScalar (methodOne,0)
-    Assert.AreEqual(System.Math.PI, result, "Execution result")
+    Assert.Equal(System.Math.PI, result)// "Execution result"
 
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine executes a flow of two chained methods`` () =
     let methodOne : ExecutableMethod = upcast MethodMakeValue<float> System.Math.PI
     let methodInc : ExecutableMethod = upcast MethodOp<float,float> (fun a -> a + 1.0)
@@ -88,11 +89,12 @@ let ``Engine executes a flow of two chained methods`` () =
         
     let s = Control.runToFinal state
     let result : float = s |> Control.outputScalar (methodInc,0)
-    Assert.AreEqual(System.Math.PI + 1.0, result, "Execution result")
+    Assert.Equal(System.Math.PI + 1.0, result) // "Execution result"
 
+//[<assembly: CollectionBehavior(DisableTestParallelization = true)>]
+//do ()
 
-
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine executes an iterative method and we can see intermediate outputs`` () =
     let pi = System.Math.PI
     let iters = [ for i in 0..3 -> float(i)/3.0 * pi ]
@@ -122,11 +124,11 @@ let ``Engine executes an iterative method and we can see intermediate outputs`` 
         
     engine.Start()
 
-    let actualIters = iterations.GetAwaiter().GetResult() |> Seq.toList
-    Assert.AreEqual(iters, actualIters, "Iterations")    
+    let actualIters = iterations.GetAwaiter().GetResult() |> Seq.toList |> List.map (fun x -> x :?> float) |> Seq.ofList
+    Assert.Equal(iters, actualIters) // "Iterations"
 
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine executes a flow with vector methods`` () =
     let pi = System.Math.PI    
     let input = [| for k in 0..3 -> float(k)*pi |]
@@ -155,10 +157,10 @@ let ``Engine executes a flow with vector methods`` () =
         
     let s = Control.runToFinal state
     let result : float = s |> Control.outputScalar (methodSum,0)
-    Assert.AreEqual(input |> Array.map (fun v -> v+1.0) |> Array.sum, result, "Execution result")
+    Assert.Equal(input |> Array.map (fun v -> v+1.0) |> Array.sum, result) // "Execution result"
 
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine executes a flow with vector of length zero`` () =
     // The source method will produce an empty array.
     // Then this array is passed to a vectorized method that increments each element of the input array.
@@ -186,9 +188,9 @@ let ``Engine executes a flow with vector of length zero`` () =
         
     let s = Control.runToFinal state
     let result : float = s |> Control.outputScalar (methodSum,0)
-    Assert.AreEqual(0.0, result, "Execution result")
+    Assert.Equal(0.0, result) // "Execution result"
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine allows to pause an executing iterative method``() =
     let iters = Seq.initInfinite (fun i -> System.Threading.Thread.Sleep(10); float(i))
     let methodIter : ExecutableMethod = upcast MethodMakeValueIter<float> iters
@@ -209,7 +211,7 @@ let ``Engine allows to pause an executing iterative method``() =
     let s5 = engine.Changes.Take(10).GetAwaiter().GetResult()
     match s5.State.Vertices.[methodIter].AsScalar().Status with
     | VertexStatus.Continues _ -> () // ok
-    | _ -> Assert.Fail "Unexpected status"
+    | _ -> Assert.True(false, "Unexpected status")
 
     let finish = 
         engine.Changes.FirstAsync(fun update ->
@@ -222,9 +224,9 @@ let ``Engine allows to pause an executing iterative method``() =
 
     let s = finish.GetResult()
 
-    Assert.LessOrEqual(1.0, s.State |> Control.outputScalar (methodIter, 0), "Output")
+    Assert.True(1.0 <= (s.State |> Control.outputScalar (methodIter, 0)), "Output")
 
-[<Test; Category("CI")>]
+[<Fact; Trait("Category", "CI")>]
 let ``Engine allows to continue a paused iterative method and a checkpoint enables to start from last iteration`` () =
     let iters = [| for i in 0..10 -> float(i) * System.Math.PI |]
     let methodIter : ExecutableMethod = upcast MethodMakeValueIter<float> iters
@@ -273,10 +275,10 @@ let ``Engine allows to continue a paused iterative method and a checkpoint enabl
     let s = final.GetResult()
 
     let result : float = s |> Control.outputScalar (methodInc,0)
-    Assert.AreEqual(Array.last iters + 1.0, result, "Execution result")
-    Assert.AreEqual(iters.Length - k, iterCount.GetResult(),  "Number of iterations performed")
+    Assert.Equal(Array.last iters + 1.0, result) // "Execution result"
+    Assert.Equal(iters.Length - k, iterCount.GetResult()) //  "Number of iterations performed"
 
 
-[<Test; Category("CI")>]
+[<Fact(Skip = "Incomplete"); Trait("Category", "CI")>]
 let ``Engine allows to cancel execution`` () = 
-    Assert.Inconclusive("Incomplete");
+    () //Assert.Inconclusive("Incomplete");

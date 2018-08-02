@@ -296,11 +296,7 @@ type Scheduler<'m when 'm:>ExecutableMethod and 'm:comparison> () =
         
 and [<Class>] ThreadPoolScheduler<'m when 'm:>ExecutableMethod and 'm:comparison>() =
     inherit Scheduler<'m>()
-    #if NETFULL
-    static let scheduler = System.Threading.Tasks.Schedulers.LimitedConcurrencyLevelTaskScheduler(System.Environment.ProcessorCount)
-    #else
     static let scheduler = ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, System.Environment.ProcessorCount).ConcurrentScheduler
-    #endif
     static do Trace.Runtime.TraceInformation(sprintf "ThreadPoolScheduler limits concurrency level with %d" System.Environment.ProcessorCount)
     static let mutable ExSeq = 0L   
     

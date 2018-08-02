@@ -1,9 +1,9 @@
 ﻿module ``Directed Acyclic Graph operations``
 
-open FsUnit
-open NUnit.Framework
 open Angara
 open System
+open Xunit
+open FsUnit.Xunit
 
 type Trace = System.Diagnostics.Trace
 type IntEdge(source, target) = 
@@ -13,11 +13,11 @@ type IntEdge(source, target) =
 
 type IntDag = Angara.Graph.DirectedAcyclicGraph<int,IntEdge>
 
-[<Test; Category("CI")>]
-[<MaxTime(1000)>]
+[<Fact; Trait("Category", "CI")>]
 let ``Graph vertices are folded in topological order``() = 
     // No vertices
-    IntDag().TopoFold (fun s v e -> v :: s) [] |> should equal []
+    let supposedlyEmpty = IntDag().TopoFold (fun s v e -> v :: s) [] //|> should equal []
+    Assert.Empty supposedlyEmpty
    
     // One vertex
     IntDag().AddVertex(1).TopoFold (fun s v e -> v :: s) [] |> should equal [1] 
@@ -35,14 +35,12 @@ let ``Graph vertices are folded in topological order``() =
                          AddEdge(IntEdge(1,2)).AddEdge(IntEdge(1,4)).
                          AddEdge(IntEdge(3,2)).AddEdge(IntEdge(3,4)).
                          TopoFold (fun s v e -> v :: s) []
-    Assert.AreEqual(result.Length,4)
-    Assert.IsTrue(result.[0] = 2 && result.[1] = 4 || result.[0] = 4 && result.[1] = 2)
-    Assert.IsTrue(result.[2] = 1 && result.[3] = 3 || result.[2] = 3 && result.[3] = 1)
+    Assert.Equal(result.Length,4)
+    Assert.True(result.[0] = 2 && result.[1] = 4 || result.[0] = 4 && result.[1] = 2)
+    Assert.True(result.[2] = 1 && result.[3] = 3 || result.[2] = 3 && result.[3] = 1)
 
-[<Test; Category("CI")>]
-[<MaxTime(1000)>]
+[<Fact; Trait("Category", "CI")>]
 let ``No loops are allowed``() = 
-    Assert.That((fun () ->
+    Assert.Throws<InvalidOperationException>(fun () ->
         let g = IntDag().AddVertex(1).AddVertex(2).AddEdge(IntEdge(1,2))
-        g.AddEdge(IntEdge(2,1)) |> ignore),
-        Throws.InvalidOperationException)
+        g.AddEdge(IntEdge(2,1)) |> ignore)

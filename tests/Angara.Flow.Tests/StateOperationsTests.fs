@@ -1,7 +1,7 @@
 ﻿module ``State operations``
 
-open FsUnit
-open NUnit.Framework
+open Xunit
+open FsUnit.Xunit
 open Angara
 open System
 open Angara.Graph
@@ -30,8 +30,7 @@ type Data =
         
         
 
-[<Test; Category("CI")>]
-[<MaxTime(1000)>]
+[<Fact; Trait("Category", "CI")>]
 let ``State normalization adds a proper status when it is missing for a vertex``() =
     let v1 = Vertex(1, [], [typeof<int>])
     let v2 = Vertex(2, [typeof<int>], [typeof<int>])
@@ -39,11 +38,11 @@ let ``State normalization adds a proper status when it is missing for a vertex``
     let s1 = { State.Vertices = Map.empty; State.Graph = g1; State.TimeIndex = 0UL }
     
     let s2 = normalize s1
-    Assert.AreEqual(2, s2.State.Vertices.Count, "Number of states")
+    Assert.Equal(2, s2.State.Vertices.Count) // "Number of states"
     let vs1 = s2.State.Vertices.[v1].AsScalar()
-    Assert.IsNull(vs1.Data)
-    Assert.IsTrue(match vs1.Status with VertexStatus.CanStart t when t = 0UL -> true | _ -> false)
+    Assert.Null(vs1.Data)
+    Assert.True(match vs1.Status with VertexStatus.CanStart t when t = 0UL -> true | _ -> false)
     let vs2 = s2.State.Vertices.[v2].AsScalar()
-    Assert.IsNull(vs2.Data)
-    Assert.IsTrue(match vs2.Status with VertexStatus.Incomplete (OutdatedInputs) -> true | _ -> false)
+    Assert.Null(vs2.Data)
+    Assert.True(match vs2.Status with VertexStatus.Incomplete (OutdatedInputs) -> true | _ -> false)
 
