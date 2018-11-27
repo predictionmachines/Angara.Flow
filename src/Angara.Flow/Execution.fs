@@ -296,8 +296,12 @@ type Scheduler<'m when 'm:>ExecutableMethod and 'm:comparison> () =
         
 and [<Class>] ThreadPoolScheduler<'m when 'm:>ExecutableMethod and 'm:comparison>() =
     inherit Scheduler<'m>()
-    static let scheduler = ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, System.Environment.ProcessorCount).ConcurrentScheduler
-    static do Trace.Runtime.TraceInformation(sprintf "ThreadPoolScheduler limits concurrency level with %d" System.Environment.ProcessorCount)
+    // ConcurrentScheduler has the following bug in .Net Standard 2.0
+    // Test "Engine executes an iterative method and we can see intermediate outputs" hangs after "Engine allows to pause an executing iterative method" successful execution
+    // Replacing ConcurrentScheduler with default one workarounds the issue
+    static let scheduler = System.Threading.Tasks.TaskScheduler.Default // ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, System.Environment.ProcessorCount).ConcurrentScheduler
+    // static do Trace.Runtime.TraceInformation(sprintf "ThreadPoolScheduler limits concurrency level with %d" System.Environment.ProcessorCount)
+    static do Trace.Runtime.TraceInformation(sprintf "ThreadPoolScheduler with unlimited parallelism")
     static let mutable ExSeq = 0L   
     
     override x.Start (_, f: unit -> unit) =

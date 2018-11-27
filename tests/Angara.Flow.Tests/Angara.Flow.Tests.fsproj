@@ -25,6 +25,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="GraphTests.fs" />
     <Compile Include="GraphExpression.fs" />
     <Compile Include="StateOperations.fs" />
