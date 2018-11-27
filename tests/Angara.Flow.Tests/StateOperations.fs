@@ -1,6 +1,7 @@
 ﻿module StateOperations
 
-open NUnit.Framework
+open Xunit
+open FsUnit.Xunit
 open Angara.Data
 open Angara.Graph
 open Angara.States
@@ -69,17 +70,17 @@ let stop (nodeName : string) (state : State<Vertex,VertexOutput>, nameToVertex: 
 
 let check (stateExp : State<Vertex,VertexOutput>, nameToVertexExp: Map<string, Vertex>) (stateAct : StateUpdate<Vertex,VertexOutput>, nameToVertexAct: Map<string, Vertex>) =
     let stateAct = stateAct.State
-    Assert.AreEqual(nameToVertexExp, nameToVertexAct, sprintf "Different names (%d)" stateExp.TimeIndex)
-    Assert.AreEqual(stateExp.Graph, stateAct.Graph, sprintf "Different graphs (%d)" stateExp.TimeIndex)
+    Assert.Equal<(string * Vertex) seq>((Map.toSeq nameToVertexExp), (Map.toSeq nameToVertexAct))//, sprintf "Different names (%d)" stateExp.TimeIndex)
+    Assert.Equal(stateExp.Graph, stateAct.Graph)//, sprintf "Different graphs (%d)" stateExp.TimeIndex)
     
     let exp = stateExp.Vertices |> Map.toArray
     let act = stateAct.Vertices |> Map.toArray
-    Assert.AreEqual(exp.Length, act.Length, sprintf "Different length of states (%d)" stateExp.TimeIndex)
+    Assert.Equal(exp.Length, act.Length) //, sprintf "Different length of states (%d)" stateExp.TimeIndex)
     Array.iter2(fun (v,e) (u,a) -> 
-        Assert.AreEqual(v :> obj, u :> obj, sprintf "Different vertices of states (%d)" stateExp.TimeIndex)
-        let eq = MdMap.equal(fun i s t -> Assert.AreEqual(s.Status, t.Status, sprintf "Different %A states at index (%A) (%d)" v i stateExp.TimeIndex); true) e a
-        Assert.IsTrue(eq, sprintf "Different shapes of %A states (%d)" v stateExp.TimeIndex)) exp act
+        Assert.Equal(v :> obj, u :> obj) //, sprintf "Different vertices of states (%d)" stateExp.TimeIndex)
+        let eq = MdMap.equal(fun i s t -> Assert.Equal(s.Status, t.Status) (*, sprintf "Different %A states at index (%A) (%d)" v i stateExp.TimeIndex) *); true) e a
+        Assert.True(eq, sprintf "Different shapes of %A states (%d)" v stateExp.TimeIndex)) exp act
 
-    Assert.AreEqual(stateExp.TimeIndex, stateAct.TimeIndex, sprintf "Different time indices (%d)" stateExp.TimeIndex)
+    Assert.Equal(stateExp.TimeIndex, stateAct.TimeIndex) //, sprintf "Different time indices (%d)" stateExp.TimeIndex)
     (stateAct, nameToVertexAct)
 

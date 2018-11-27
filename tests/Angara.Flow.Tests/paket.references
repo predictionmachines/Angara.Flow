@@ -1,8 +1,0 @@
-﻿System.Reactive
-
-group Test
-NUnit
-NUnit.Runners
-FsCheck
-FsCheck.NUnit
-FsUnit

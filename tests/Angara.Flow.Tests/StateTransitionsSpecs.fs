@@ -1,10 +1,12 @@
 ﻿module ``State machine specs``
 
 
-open NUnit.Framework
+open Xunit
+open FsUnit.Xunit
 open GraphExpression
 open StateOperations
 open Angara.States
+open System
 
 
 //------------------------------------------------------------------------------------------
@@ -13,7 +15,7 @@ open Angara.States
 //
 //------------------------------------------------------------------------------------------
 
-[<Test>]
+[<Fact>]
 let ``Conducts simple method execution``() = 
     let g = graph {
         return! node1 "a" []
@@ -28,7 +30,7 @@ let ``Conducts simple method execution``() =
     |>           check (state (g, ["a", Final [0]], 3UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``Obsolete 'succeeded' message is ignored``() = 
     let g = graph {
         return! node1 "a" []
@@ -46,7 +48,7 @@ let ``Obsolete 'succeeded' message is ignored``() =
     |>           check (state (g, ["a", Continues (1UL,[0])], 4UL)) // remains executing, without any exceptions
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``Obsolete 'iteration' message is ignored``() = 
     let g = graph {
         return! node1 "a" []
@@ -59,24 +61,24 @@ let ``Obsolete 'iteration' message is ignored``() =
     |>           check (state (g, ["a", Started 1UL], 2UL)) // remains started, without any exceptions
     |> ignore
 
-[<Test>]
-[<ExpectedException(typeof<System.InvalidOperationException>)>]
+[<Fact>]
 let ``Final method cannot be started``() = 
-    let g = graph {
-        return! node1 "a" []
-    }
+    Assert.Throws<InvalidOperationException>(fun () ->
+        let g = graph {
+            return! node1 "a" []
+        }
 
-                        state (g, ["a", Final [0]], 0UL)
-    |> start "a"
-    |> ignore
-
+                            state (g, ["a", Final [0]], 0UL)
+        |> start "a"
+        |> ignore)
+    
 //------------------------------------------------------------------------------------------
 //
 //   2-methods transitions
 //
 //------------------------------------------------------------------------------------------
 
-[<Test>]
+[<Fact>]
 let ``Method iteration enables its downstream method to start``() = 
     let g = graph {
         let! a = node1 "a" []
@@ -94,7 +96,7 @@ let ``Method iteration enables its downstream method to start``() =
 
 
 
-[<Test>]
+[<Fact>]
 let ``Next method iteration cancels the possible execution of its downstream method``() = 
     let g = graph {
         let! a = node1 "a" []
@@ -118,7 +120,7 @@ let ``Next method iteration cancels the possible execution of its downstream met
     |> ignore
 
 
-[<Test>]
+[<Fact>]
 let ``Method iteration cancels the execution of the immediate downstream method and makes other downstream methods incomplete``() = 
     let g = graph {
         let! a = node1 "a" []
@@ -134,7 +136,7 @@ let ``Method iteration cancels the execution of the immediate downstream method 
     |> ignore
 
 
-[<Test>]
+[<Fact>]
 let ``Method iterations can be paused then resumed``() = 
     let g = graph {
         let! a = node1 "a" []
@@ -162,7 +164,7 @@ let ``Method iterations can be paused then resumed``() =
 //
 //------------------------------------------------------------------------------------------
 
-[<Test>]
+[<Fact>]
 let ``Conducts through reproduction of a final transient artefact after reinstate``() = 
     // *Fo -> Fi
     let g = graph {
@@ -182,7 +184,7 @@ let ``Conducts through reproduction of a final transient artefact after reinstat
     |> ignore
 
 
-[<Test>]
+[<Fact>]
 let ``If a final transient method depends on another final transient method, its reproduction forces reproduction of the upstream method``() = 
     // Fo -> *Fio
     let g = graph {
@@ -203,7 +205,7 @@ let ``If a final transient method depends on another final transient method, its
     |>           check (state (g, ["a", Final [0]; "b", Final [0]], 5UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``If a paused transient method depends on another paused transient method, its execution forces re-execution of the upstream method``() = 
     // The transient methods cannot be a result of state machine actions.
     // The only origin of the transiency is deserialization of a state, if some artefacts cannot be serialized/deserialized.
@@ -221,7 +223,7 @@ let ``If a paused transient method depends on another paused transient method, i
     |>           check (state (g, ["a", Started 1UL; "b", Incomplete OutdatedInputs; "c", Incomplete OutdatedInputs], 1UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``If a paused transient method depends on a final transient method, its execution forces reproduction of the upstream method``() = 
     let g = graph { // Fo -> *Pi -> F
         let! a = node1 "a" []
@@ -236,7 +238,7 @@ let ``If a paused transient method depends on a final transient method, its exec
     |>           check (state (g, ["a", Final [0]; "b", CanStart 2UL; "c", Incomplete OutdatedInputs], 2UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``Paused transient method cannot be resumed but re-executes and invalidates downstream methods``() = 
     let g = graph { // P -> *Po -> F
         let! a = node1 "a" []
@@ -250,7 +252,7 @@ let ``Paused transient method cannot be resumed but re-executes and invalidates 
     |> ignore
 
 
-[<Test>]
+[<Fact>]
 let ``If a final transient method depends on a paused transient method, it cannot be reproduced but re-executes and invalidates downstream methods``() = 
     let g = graph { // Po -> Fio -> *Fio -> Fi
         let! a = node1 "a" []
@@ -264,7 +266,7 @@ let ``If a final transient method depends on a paused transient method, it canno
     |>           check (state (g, ["a", Started 1UL; "b", Incomplete OutdatedInputs; "c", Incomplete OutdatedInputs; "d", Incomplete OutdatedInputs], 1UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``All methods are re-executed if a final transient method depends on two interdepending transient methods and one of them is paused``() = 
     // We check here the case when processing first input implicitly updates the state of the second which then is processed in its turn, but is already outdated.
     // Po -------------> *Fio
@@ -291,7 +293,7 @@ let ``All methods are re-executed if a final transient method depends on two int
     |>           check (state (g, ["a", Started 1UL; "b", Incomplete OutdatedInputs; "c", Incomplete OutdatedInputs], 1UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``All methods are reproduced if a final transient method depends on two interdepending transient final methods``() = 
     // Fo -------------> *Fio
     //    ---> Fio ---->
@@ -335,7 +337,7 @@ open Angara.Data
 
 let scalar = MdMap.scalar
 
-[<Test>]
+[<Fact>]
 let ``Scatter: A method with input of type T can be connected to a method producing T[] and it is multiplied for each of the input array elements``() =
     let g = graph { 
         let! a = scatter_node1 "a" []
@@ -358,7 +360,7 @@ let ``Scatter: A method with input of type T can be connected to a method produc
     |>           check (mdState (g, ["a", scalar (Final [1]); "b", vector [CanStart 5UL]], 6UL))
     |> ignore
 
-[<Test>]
+[<Fact>]
 let ``Reduce: If a method producing T is multiplied and produces T[], it can be connected to another method accepting T[]``() =
     let g = graph { 
         let! a = scatter_node1 "a" []
@@ -377,7 +379,7 @@ let ``Reduce: If a method producing T is multiplied and produces T[], it can be 
     |>           check (mdState (g, ["a", scalar (Final [2]); "b", vector [Continues (0UL, [0]); Continues (1UL, [0])]; "c", scalar (CanStart 5UL)], 5UL))
     |> ignore
 
-[<Test; Category("Scenario")>]
+[<Fact; Trait("Category", "Scenario")>]
 let ``Reduce: if the scattering method produces an empty array, the reducing method should be executed for an empty input array as well``() =
     let g = graph { 
         let! a = scatter_node1 "a" []
@@ -393,7 +395,7 @@ let ``Reduce: if the scattering method produces an empty array, the reducing met
     |> ignore
 
 
-[<Test>]
+[<Fact>]
 let ``Reduce: chain of methods depeding on scatter method producing an empty array``() =
     let g = graph { 
         let! a = scatter_node1 "a" []
@@ -414,7 +416,7 @@ let ``Reduce: chain of methods depeding on scatter method producing an empty arr
                                      "f", scalar (CanStart 2UL) ], 2UL))
     |> ignore
 
-[<Test; Category("Scenario")>]
+[<Fact; Trait("Category", "Scenario")>]
 let ``Reduce: vector method has two inputs and one of them produces empty array, another produces non-empty array``() =
     let g = graph { 
         let! a = scatter_node1 "a" []
